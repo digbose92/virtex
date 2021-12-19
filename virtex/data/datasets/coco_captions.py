@@ -4,8 +4,8 @@ import os
 from typing import Dict, List
 
 import cv2
-from torch.utils.data import Dataset
-
+from torch.utils.data import Dataset, DataLoader
+import pandas as pd 
 
 class CocoCaptionsDataset(Dataset):
     r"""
@@ -53,3 +53,56 @@ class CocoCaptionsDataset(Dataset):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         return {"image_id": image_id, "image": image, "captions": captions}
+
+class ArtemisCaptionsDataset(Dataset):
+
+    """Pytorch dataset to read Artemis captions and generate the data 
+       Args:
+            root_data_dir: Path to Artemis data 
+            split: "train" or "val"
+    """
+
+    def __init__(self, root_data_dir: str, image_data_dir:str, split: str):
+
+        self.root_data_dir=root_data_dir
+        self.image_data_dir=image_data_dir
+        self.split=split 
+
+        #preprocessed data
+        self.caption_file=os.path.join(self.root_data_dir,"artemis_preprocessed.csv")
+        self.caption_data=pd.read_csv(self.caption_file)
+
+        #split data
+        self.caption_data_split=self.caption_data[self.caption_data['split']==split]
+
+    def __len__(self):
+        return len(self.caption_data_split)
+
+    def __getitem__(self, idx: int):
+        
+        #artsyle and painting 
+        artstyle=self.caption_data_split['art_style'].iloc[idx]
+        painting=self.caption_data_split['painting'].iloc[idx]
+        captions=self.caption_data_split['utterance'].iloc[idx]
+
+        artstyle_subfolder=os.path.join(self.image_data_dir,artstyle)
+        painting_file=os.path.join(artstyle_subfolder,painting+".jpg")
+        #print(painting_file)
+        image = cv2.imread(painting_file)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        image_id=artstyle+"_"+painting
+
+        return {"image_id": image_id, "image": image, "captions": captions}
+
+
+# root_data_dir="/home/dbose_usc_edu/data/artemis/preprocessed_data/"
+# image_data_dir="/data/wikiart_dataset"
+# artemis_ds=ArtemisCaptionsDataset(root_data_dir=root_data_dir,
+#                                         image_data_dir=image_data_dir,
+#                                         split='train')
+
+# artemis_dl=DataLoader(artemis_ds,batch_size=1,shuffle=False)
+# dict_artemis_data=next(iter(artemis_dl))
+#print(dict_artemis_data)
+

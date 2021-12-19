@@ -8,7 +8,7 @@ from torch.utils.data import Dataset
 
 from virtex.data.tokenizers import SentencePieceBPETokenizer
 from virtex.data import transforms as T
-from .coco_captions import CocoCaptionsDataset
+from .coco_captions import CocoCaptionsDataset, ArtemisCaptionsDataset
 
 
 class CaptioningDataset(Dataset):
@@ -31,12 +31,17 @@ class CaptioningDataset(Dataset):
     def __init__(
         self,
         data_root: str,
+        img_root: str,
         split: str,
         tokenizer: SentencePieceBPETokenizer,
         image_transform: Callable = T.DEFAULT_IMAGE_TRANSFORM,
         max_caption_length: int = 30,
     ):
-        self._dset = CocoCaptionsDataset(data_root, split)
+        #self._dset = CocoCaptionsDataset(data_root, split)
+        self._dset=ArtemisCaptionsDataset(root_data_dir=data_root,
+            image_data_dir=img_root,
+            split=split)
+        
         self.image_transform = image_transform
         self.caption_transform = alb.Compose(
             [
@@ -70,7 +75,7 @@ class CaptioningDataset(Dataset):
 
         caption_tokens = self.caption_transform(caption=caption)["caption"]
         return {
-            "image_id": torch.tensor(image_id, dtype=torch.long),
+            "image_id": image_id, #removed dtype=torch.long 
             "image": torch.tensor(image, dtype=torch.float),
             "caption_tokens": torch.tensor(caption_tokens, dtype=torch.long),
             "noitpac_tokens": torch.tensor(caption_tokens, dtype=torch.long).flip(0),
@@ -99,3 +104,5 @@ class CaptioningDataset(Dataset):
             "noitpac_tokens": noitpac_tokens,
             "caption_lengths": torch.stack([d["caption_lengths"] for d in data]),
         }
+
+

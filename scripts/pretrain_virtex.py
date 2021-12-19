@@ -55,7 +55,6 @@ def main(_A: argparse.Namespace):
     # such as logging and setting up serialization directory.
     _C = Config(_A.config, _A.config_override)
     common_setup(_C, _A)
-
     # -------------------------------------------------------------------------
     #   INSTANTIATE DATALOADER, MODEL, OPTIMIZER, SCHEDULER
     # -------------------------------------------------------------------------

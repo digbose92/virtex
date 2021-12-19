@@ -207,10 +207,9 @@ class PretrainingDatasetFactory(Factory):
             config: Config object with all the parameters.
             split: Which dataset split to load. One of ``{"train", "val"}``.
         """
-
         _C = config
         # Every dataset needs these two args.
-        kwargs = {"data_root": _C.DATA.ROOT, "split": split}
+        kwargs = {"data_root": _C.DATA.ROOT, "img_root": _C.DATA.IMG_ROOT, "split": split}
 
         # Create a list of image transformations based on transform names.
         image_transform_list: List[Callable] = []

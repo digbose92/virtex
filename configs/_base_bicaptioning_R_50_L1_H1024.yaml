@@ -9,6 +9,7 @@ CUDNN_DETERMINISTIC: false
 
 DATA:
   ROOT: "datasets/coco"
+  IMG_ROOT: "/data/wikiart_dataset"
   TOKENIZER_MODEL: "datasets/vocab/coco_10k.model"
   VOCAB_SIZE: 10000
   UNK_INDEX: 0
